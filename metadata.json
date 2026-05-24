@@ -1,0 +1,8 @@
+{
+  "name": "Kinetic Ledger",
+  "description": "Premium fintech dashboard for portfolio management, cash flow analysis, and investment simulation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

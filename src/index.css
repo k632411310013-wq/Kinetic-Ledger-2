@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-background: #0b141c;
+  --color-on-background: #dae3ee;
+  
+  --color-surface: #0b141c;
+  --color-surface-dim: #0b141c;
+  --color-surface-bright: #313a43;
+  --color-surface-container-lowest: #060f16;
+  --color-surface-container-low: #141c24;
+  --color-surface-container: #182028;
+  --color-surface-container-high: #222b33;
+  --color-surface-container-highest: #2d363e;
+  
+  --color-on-surface: #dae3ee;
+  --color-on-surface-variant: #e4beba;
+  
+  --color-primary: #ffb3ae;
+  --color-on-primary: #68000b;
+  --color-primary-container: #ff5352;
+  --color-on-primary-container: #5c0008;
+  --color-vibrant-red: #ff4d4d;
+  
+  --color-secondary: #c2c7d0;
+  --color-on-secondary: #2c3138;
+  --color-secondary-container: #42474f;
+  
+  --color-tertiary: #c1c7d1;
+  --color-on-tertiary: #2b3139;
+  
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-background font-sans antialiased;
+  }
+}
+
+.glass-panel {
+  @apply bg-surface-container/70 backdrop-blur-xl border border-white/10;
+}
+
+.glass-panel:hover {
+  @apply bg-surface-container-high/80 border-white/20 transition-all duration-300;
+}
+
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20;
+}
