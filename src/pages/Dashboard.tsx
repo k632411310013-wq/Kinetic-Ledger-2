@@ -40,7 +40,7 @@ export default function Dashboard() {
 
   const cashOutflow = actualLivingExpenses + capitalAllocations;
     
-  const netCashFlow = cashInflow - cashOutflow;
+  const netCashFlow = cashInflow - actualLivingExpenses;
 
   // Thặng dư dòng tiền từ hoạt động sống trước khi đi phân phối đầu tư
   const livingSurplus = Math.max(0, cashInflow - actualLivingExpenses);
@@ -65,7 +65,7 @@ export default function Dashboard() {
   const currentMonthlyAllocation = {
     stocks: actualMonthlyStocks,
     savings: actualMonthlySavings,
-    cash: netCashFlow, // Phần tiền mặt thực tế dôi dư/tiền mặt ròng dồn lại tháng này
+    cash: Math.max(0, netCashFlow - capitalAllocations), // Phần tiền mặt thực tế dôi dư còn lại sau phân bổ
     gold: actualMonthlyGold,
     usd: actualMonthlyUsd,
   };
@@ -214,25 +214,25 @@ export default function Dashboard() {
   const stockValue = stocks.reduce((sum, s) => sum + (s.quantity * s.currentPrice), 0);
   const totalAccumulatedValue = allocation.cash + stockValue + allocation.savings + allocation.gold + allocation.usd;
   
-  // Dynamic allocation data for display - Derived dynamically from Monthly holdings!
+  // Dynamic allocation data for display - Derived dynamically from actual holdings!
   const displayAllocationData = [
-    { name: "Cổ phiếu", value: currentMonthlyAllocation.stocks, color: "var(--color-primary)" },
-    { name: "Tiền mặt", value: currentMonthlyAllocation.cash, color: "var(--color-secondary)" },
-    { name: "Tiết kiệm", value: currentMonthlyAllocation.savings, color: "var(--color-tertiary)" },
-    { name: "Vàng", value: currentMonthlyAllocation.gold, color: "#d4af37" },
-    { name: "Dự trữ USD", value: currentMonthlyAllocation.usd, color: "#22c55e" },
+    { name: "Cổ phiếu", value: stockValue, color: "var(--color-primary)" },
+    { name: "Tiền mặt", value: allocation.cash, color: "var(--color-secondary)" },
+    { name: "Tiết kiệm", value: allocation.savings, color: "var(--color-tertiary)" },
+    { name: "Vàng", value: allocation.gold, color: "#d4af37" },
+    { name: "Dự trữ USD", value: allocation.usd, color: "#22c55e" },
   ];
   
   const totalDisplayValue = displayAllocationData.reduce((sum, item) => sum + item.value, 0);
-  const savingsRate = cashInflow > 0 ? ((cashInflow - cashOutflow) / cashInflow) * 100 : 0;
+  const savingsRate = cashInflow > 0 ? ((cashInflow - actualLivingExpenses) / cashInflow) * 100 : 0;
 
-  // Comparison data comparing standard target % vs ACTUAL monthly values
+  // Comparison data comparing standard target % vs ACTUAL holdings values
   const comparisonData = [
-    { name: "Cổ phiếu", target: 50, key: "stocks", value: currentMonthlyAllocation.stocks, color: "var(--color-primary)" },
-    { name: "Tiền mặt", target: 20, key: "cash", value: currentMonthlyAllocation.cash, color: "var(--color-secondary)" },
-    { name: "Tiết kiệm", target: 10, key: "savings", value: currentMonthlyAllocation.savings, color: "var(--color-tertiary)" },
-    { name: "Vàng", target: 10, key: "gold", value: currentMonthlyAllocation.gold, color: "#d4af37" },
-    { name: "Dự trữ USD", target: 10, key: "usd", value: currentMonthlyAllocation.usd, color: "#22c55e" },
+    { name: "Cổ phiếu", target: 50, key: "stocks", value: stockValue, color: "var(--color-primary)" },
+    { name: "Tiền mặt", target: 20, key: "cash", value: allocation.cash, color: "var(--color-secondary)" },
+    { name: "Tiết kiệm", target: 10, key: "savings", value: allocation.savings, color: "var(--color-tertiary)" },
+    { name: "Vàng", target: 10, key: "gold", value: allocation.gold, color: "#d4af37" },
+    { name: "Dự trữ USD", target: 10, key: "usd", value: allocation.usd, color: "#22c55e" },
   ];
 
   // Calculate status badge based on allocation deviation

@@ -18,14 +18,6 @@ const targetAllocationData = [
   { name: "Dự trữ USD", value: 10, color: "#22c55e", description: "Dự trữ ngoại tệ phòng ngừa tỷ giá." },
 ];
 
-const stockBreakdown = [
-  { id: "FPT", name: "FPT Corp", weight: 10 },
-  { id: "MWG", name: "Thế Giới Di Động", weight: 10 },
-  { id: "VCB", name: "Vietcombank", weight: 10 },
-  { id: "HPG", name: "Hòa Phát", weight: 10 },
-  { id: "VNM", name: "Vinamilk", weight: 10 },
-];
-
 export default function PortfolioDetails() {
   const navigate = useNavigate();
   const { allocation, stocks } = useStore();
@@ -448,35 +440,49 @@ export default function PortfolioDetails() {
                <h3 className="text-2xl font-black tracking-tight flex items-center gap-3">
                   <Zap className="text-primary" size={24} /> Phân bộ chi tiết Cổ phiếu
                </h3>
-               <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mt-1">Định dạng Equal-weight | 10% mỗi mã</p>
+               <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mt-1">Phân bổ thực tế dựa trên giá trị thị trường hiện tại</p>
             </div>
-            <button className="text-primary text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:underline">
-               Xem bảng giá <ArrowRight size={16} />
+            <button 
+               onClick={() => navigate("/stocks")}
+               className="text-primary text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:underline"
+            >
+               Giao dịch ngay <ArrowRight size={16} />
             </button>
          </div>
          
          <div className="p-8 grid grid-cols-1 md:grid-cols-5 gap-6">
-            {stockBreakdown.map((stock, idx) => (
-              <div key={stock.id} className="space-y-4">
-                 <div className="flex justify-between items-end">
-                    <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20">
-                       {stock.id.slice(0, 2)}
-                    </div>
-                    <span className="text-2xl font-black text-on-surface">10%</span>
-                 </div>
-                 <div>
-                    <h4 className="text-sm font-black">{stock.id}</h4>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">{stock.name}</p>
-                 </div>
-                 <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: '100%' }} />
-                 </div>
-                 <div className="flex items-center gap-2">
-                    <ArrowUpRight size={14} className="text-emerald-400" />
-                    <span className="text-[10px] font-black text-emerald-400 uppercase">Tăng trưởng ổn định</span>
-                 </div>
+            {stocks.filter(s => s.quantity > 0).length > 0 ? (
+              stocks.filter(s => s.quantity > 0).map((stock) => {
+                const weight = stockValue > 0 ? ((stock.quantity * stock.currentPrice) / stockValue) * 100 : 0;
+                return (
+                  <div key={stock.ticker} className="space-y-4">
+                     <div className="flex justify-between items-end">
+                        <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20">
+                           {stock.ticker.slice(0, 2)}
+                        </div>
+                        <span className="text-2xl font-black text-on-surface">{weight.toFixed(1)}%</span>
+                     </div>
+                     <div>
+                        <h4 className="text-sm font-black">{stock.ticker}</h4>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant truncate">{stock.name}</p>
+                     </div>
+                     <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${weight}%` }} />
+                     </div>
+                     <div className="flex items-center gap-2">
+                        <ArrowUpRight size={14} className="text-emerald-400" />
+                        <span className="text-[10px] font-black text-[#94a3b8] font-mono">
+                           {stock.quantity.toLocaleString("vi-VN")} CP
+                        </span>
+                     </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-full py-12 text-center text-on-surface-variant font-bold">
+                 Bạn chưa nắm giữ cổ phiếu nào. Hãy sang danh mục "Cổ phiếu" để giao dịch.
               </div>
-            ))}
+            )}
          </div>
       </motion.div>
     </div>

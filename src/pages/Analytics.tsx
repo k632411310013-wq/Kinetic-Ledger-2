@@ -142,8 +142,8 @@ export default function Analytics() {
          </div>
 
          <div className="grid grid-cols-1 gap-12 lg:grid-cols-5">
-            {stocks.map((item, i) => {
-              const weight = (item.quantity * item.currentPrice / stockValue) * 100;
+            {stocks.filter(s => s.quantity > 0).map((item, i) => {
+              const weight = stockValue > 0 ? (item.quantity * item.currentPrice / stockValue) * 100 : 0;
               return (
                 <div key={i} className="space-y-4">
                    <div className="flex justify-between items-center">

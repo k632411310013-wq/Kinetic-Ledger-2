@@ -10,11 +10,13 @@ export function TopBar() {
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
     
-  const cashOutflow = transactions
-    .filter((t) => t.type === "expense")
+  const investmentCategories = ["Đầu tư", "Tiết kiệm", "Vàng miếng", "Ngoại tệ USD", "Vàng", "USD", "Ngoại tệ"];
+    
+  const actualLivingExpenses = transactions
+    .filter((t) => t.type === "expense" && !investmentCategories.includes(t.category))
     .reduce((sum, t) => sum + t.amount, 0);
     
-  const netCashFlow = cashInflow - cashOutflow;
+  const netCashFlow = cashInflow - actualLivingExpenses;
 
   const stockValue = stocks.reduce((sum, s) => sum + (s.quantity * s.currentPrice), 0);
   const totalAssetsValue = allocation.cash + stockValue + allocation.savings + allocation.gold + allocation.usd;

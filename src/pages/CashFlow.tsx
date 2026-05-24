@@ -17,9 +17,13 @@ export default function CashFlow() {
     .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
     
-  const cashOutflow = transactions
-    .filter((t) => t.type === "expense")
+  const investmentCategories = ["Đầu tư", "Tiết kiệm", "Vàng miếng", "Ngoại tệ USD", "Vàng", "USD", "Ngoại tệ"];
+    
+  const actualLivingExpenses = transactions
+    .filter((t) => t.type === "expense" && !investmentCategories.includes(t.category))
     .reduce((sum, t) => sum + t.amount, 0);
+    
+  const cashOutflow = actualLivingExpenses;
     
   const netCashFlow = cashInflow - cashOutflow;
 
