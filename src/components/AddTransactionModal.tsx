@@ -17,21 +17,29 @@ const categories = {
 const paymentMethods = ["Tiền mặt", "Ngân hàng", "Ví điện tử"];
 
 export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProps) {
-  const { addTransaction } = useStore();
+  const { addTransaction, allocation } = useStore();
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Ngân hàng");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category || !description) return;
 
+    const txAmount = parseFloat(amount.replace(/\./g, ""));
+    if (type === "expense" && txAmount > allocation.cash) {
+      setErrorMsg(`Không đủ số dư Tiền mặt khả dụng! (Số dư: ${allocation.cash.toLocaleString("vi-VN")} ₫, Cần: ${txAmount.toLocaleString("vi-VN")} ₫)`);
+      return;
+    }
+
+    setErrorMsg(null);
     addTransaction({
       type,
-      amount: parseFloat(amount.replace(/\./g, "")),
+      amount: txAmount,
       category,
       date,
       description,
@@ -42,6 +50,7 @@ export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProp
     setAmount("");
     setCategory("");
     setDescription("");
+    setErrorMsg(null);
     onClose();
   };
 
@@ -197,16 +206,28 @@ export function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProp
               </div>
 
               {/* Submit */}
-              <button
-                type="submit"
-                className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary-container p-4 font-black uppercase tracking-widest text-white shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
-              >
-                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative flex items-center justify-center gap-3">
-                  <Plus size={20} />
-                  Xác nhận giao dịch
-                </div>
-              </button>
+              <div className="space-y-4 pt-2">
+                {errorMsg && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-3 rounded-xl border border-vibrant-red/20 bg-vibrant-red/10 text-vibrant-red text-[11px] font-bold flex items-center gap-2"
+                  >
+                    <span>⚠️</span>
+                    <span>{errorMsg}</span>
+                  </motion.div>
+                )}
+                <button
+                  type="submit"
+                  className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary-container p-4 font-black uppercase tracking-widest text-white shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative flex items-center justify-center gap-3">
+                    <Plus size={20} />
+                    Xác nhận giao dịch
+                  </div>
+                </button>
+              </div>
             </form>
           </motion.div>
         </div>

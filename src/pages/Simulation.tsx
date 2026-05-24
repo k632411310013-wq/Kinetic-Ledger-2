@@ -37,7 +37,12 @@ export default function Simulation() {
     .filter((t) => t.type === "expense" && !investmentCategories.includes(t.category))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const livingSurplus = Math.max(0, cashInflow - actualLivingExpenses); 
+  const capitalAllocations = transactions
+    .filter((t) => t.type === "expense" && investmentCategories.includes(t.category))
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const netCashFlow = cashInflow - actualLivingExpenses - capitalAllocations;
+  const defaultPMT = Math.max(0, netCashFlow);
 
   // Unrealized profit on FPT / stocks as temporary return tracker
   const stockProfit = stocks.reduce((sum, s) => sum + s.quantity * (s.currentPrice - s.avgPrice), 0);
@@ -46,7 +51,7 @@ export default function Simulation() {
   const [customPMT, setCustomPMT] = useState<number | null>(null);
   const [forecastYears, setForecastYears] = useState<number>(10);
   
-  const monthlyPMT = customPMT ?? livingSurplus;
+  const monthlyPMT = customPMT ?? defaultPMT;
   const isPMTCustomized = customPMT !== null;
 
   // 4. Portfolio return weighted rates definitions (Cổ phiếu 12%, Tiết kiệm 5%, Vàng 7%, USD 3%, Tiền mặt 0%)
@@ -537,7 +542,7 @@ export default function Simulation() {
                     onClick={() => setCustomPMT(null)}
                     className="text-[9px] font-black uppercase text-primary hover:text-white transition-colors flex items-center gap-1 bg-primary/10 border border-primary/20 px-2 py-1 rounded"
                   >
-                    <RefreshCw size={10} /> Đặt lại theo thặng dư thực ({livingSurplus.toLocaleString("vi-VN")} ₫)
+                    <RefreshCw size={10} /> Đặt lại theo dòng tiền ròng thực ({defaultPMT.toLocaleString("vi-VN")} ₫)
                   </button>
                 )}
               </div>
@@ -545,7 +550,7 @@ export default function Simulation() {
               <input 
                 type="range" 
                 min="0" 
-                max={Math.max(50000000, livingSurplus * 3)}
+                max={Math.max(50000000, defaultPMT * 3)}
                 step="500000"
                 value={monthlyPMT}
                 onChange={(e) => setCustomPMT(Number(e.target.value))}
@@ -553,8 +558,8 @@ export default function Simulation() {
               />
               <div className="flex justify-between text-[9px] text-[#64748b] font-bold">
                 <span>0 ₫</span>
-                <span>Thặng dư thực tế: {livingSurplus.toLocaleString("vi-VN")} ₫</span>
-                <span>{(Math.max(50000000, livingSurplus * 3) / 1e6).toFixed(0)} Triệu ₫</span>
+                <span>Dòng tiền ròng thực tế: {defaultPMT.toLocaleString("vi-VN")} ₫</span>
+                <span>{(Math.max(50000000, defaultPMT * 3) / 1e6).toFixed(0)} Triệu ₫</span>
               </div>
             </div>
 

@@ -17,7 +17,7 @@ const paymentMethods = ["Tiền mặt", "Ngân hàng", "Ví điện tử"];
 
 export default function AddTransaction() {
   const navigate = useNavigate();
-  const { addTransaction } = useStore();
+  const { addTransaction, allocation } = useStore();
   const [type, setType] = useState<"income" | "expense">("expense");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -25,14 +25,22 @@ export default function AddTransaction() {
   const [description, setDescription] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Ngân hàng");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category || !description) return;
 
+    const txAmount = parseFloat(amount.replace(/\./g, ""));
+    if (type === "expense" && txAmount > allocation.cash) {
+      setErrorMsg(`Không đủ số dư Tiền mặt khả dụng! (Số dư hiện tại: ${allocation.cash.toLocaleString("vi-VN")} ₫, Số tiền giao dịch: ${txAmount.toLocaleString("vi-VN")} ₫)`);
+      return;
+    }
+
+    setErrorMsg(null);
     addTransaction({
       type,
-      amount: parseFloat(amount.replace(/\./g, "")),
+      amount: txAmount,
       category,
       date,
       description,
@@ -209,7 +217,17 @@ export default function AddTransaction() {
           </div>
 
           {/* Submit */}
-          <div className="pt-6">
+          <div className="pt-6 space-y-4">
+             {errorMsg && (
+               <motion.div 
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 className="p-4 rounded-2xl border border-vibrant-red/20 bg-vibrant-red/10 text-vibrant-red text-xs font-bold flex items-center gap-3"
+               >
+                 <span className="text-sm">⚠️</span>
+                 <span>{errorMsg}</span>
+               </motion.div>
+             )}
              <button
                 type="submit"
                 className="w-full h-20 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-lg shadow-3xl shadow-primary/20 transition-all hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-4"
